@@ -104,7 +104,7 @@ int main() {
 
           for (int i = 0; i < ptsx.size(); i++){
             waypoints_x.push_back((ptsx[i] - px) * cos(psi) + (ptsy[i] - py) * sin(psi));
-            waypoints_y.push_back(-(ptsy[i] - py) * sin(psi) + (ptsy[i] - py) * cos(psi));
+            waypoints_y.push_back(-(ptsx[i] - px) * sin(psi) + (ptsy[i] - py) * cos(psi));
           }
 
           // get the polynomial to fit the trajectory

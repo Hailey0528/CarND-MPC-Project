@@ -54,20 +54,20 @@ class FG_eval {
     // The part of the cost based on the reference state
     for (int i = 0; i < N; i++){
       fg[0] += CppAD::pow(vars[v_start + i]-ref_v, 2);
-      fg[0] += CppAD::pow(vars[cte_start + i], 2);
-      fg[0] += CppAD::pow(vars[epsi_start + i], 2);
+      fg[0] += 3000*CppAD::pow(vars[cte_start + i], 2);
+      fg[0] += 3000*CppAD::pow(vars[epsi_start + i], 2);
     }
 
     // Minimize the use of actuators
     for (int i = 0; i < N-1; i++){
-      fg[0] += CppAD::pow(vars[delta_start + i], 2);
-      fg[0] += CppAD::pow(vars[a_start + i], 2);
+      fg[0] += 5*CppAD::pow(vars[delta_start + i], 2);
+      fg[0] += 5*CppAD::pow(vars[a_start + i], 2);
     }
 
     // minimize the value gap between sequential actuators
     for (int i = 0; i < N-2; i++){
-      fg[0] += CppAD::pow(vars[delta_start + i +1]-vars[delta_start + i], 2);
-      fg[0] += CppAD::pow(vars[a_start + i +1]-vars[a_start + i], 2);   
+      fg[0] += 200*CppAD::pow(vars[delta_start + i +1]-vars[delta_start + i], 2);
+      fg[0] += 10*CppAD::pow(vars[a_start + i +1]-vars[a_start + i], 2);   
     }
 
     // initial constraints, for example, for variable psi, fg[1+psi_start] is where we store the initial value of psi
@@ -99,6 +99,11 @@ class FG_eval {
       // Only consider the actuation at time t.
       AD<double> delta0 = vars[delta_start + t - 1];
       AD<double> a0 = vars[a_start + t - 1];
+      
+      if (t>1){
+        delta0 = vars[delta_start + t - 2];
+        a0 = vars[a_start + t - 2];
+      }
 
       AD<double> f0 = coeffs[0] + coeffs[1] * x0 + coeffs[2] * CppAD::pow(x0, 2) + coeffs[3] * CppAD::pow(x0, 3);
       AD<double> psides0 = CppAD::atan(coeffs[1] + 2 * coeffs[2] * x0 + 3 * coeffs[3] * CppAD::pow(x0, 2));
@@ -131,7 +136,7 @@ MPC::~MPC() {}
 
 vector<double> MPC::Solve(Eigen::VectorXd state, Eigen::VectorXd coeffs) {
   bool ok = true;
-  size_t i;
+  //size_t i;
   typedef CPPAD_TESTVECTOR(double) Dvector;
 
   double x = state[0];
@@ -156,7 +161,14 @@ vector<double> MPC::Solve(Eigen::VectorXd state, Eigen::VectorXd coeffs) {
   for (int i = 0; i < n_vars; i++) {
     vars[i] = 0;
   }
-
+  
+  vars[x_start] = x;
+  vars[y_start] = y;
+  vars[psi_start] = psi;
+  vars[v_start] = v;
+  vars[cte_start] = cte;
+  vars[epsi_start] = epsi;
+  
   Dvector vars_lowerbound(n_vars);
   Dvector vars_upperbound(n_vars);
   // TODO: Set lower and upper limits for variables.
@@ -169,13 +181,13 @@ vector<double> MPC::Solve(Eigen::VectorXd state, Eigen::VectorXd coeffs) {
 
 
   // set the limits of the steering angle from -1 to 1
-  for (int i = delta_start +1; i < a_start; i++){
-    vars_lowerbound[i] = -1.0;
-    vars_upperbound[i] = 1.0;
+  for (int i = delta_start; i < a_start; i++){
+    vars_lowerbound[i] = -0.436332;
+    vars_upperbound[i] = 0.436332;
   }
 
   // set the upper and lower limit for the actuator
-  for (int i = a_start +1; i < n_vars; i++){
+  for (int i = a_start; i < n_vars; i++){
     vars_lowerbound[i] = -1.0;
     vars_upperbound[i] = 1.0;
   }
