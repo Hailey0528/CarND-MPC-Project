@@ -18,7 +18,7 @@ If the N increases, then the control inputs, which need to be optimizd, will inc
 All the waypoints should be transfered into the coordinate of the current point. And then use the function 'polyfit' to get the coefficients of the fitting result.
 
 ## Model Predictive Control with Latency
-For example, one part is to multiply a positive value to the square of the difference of two sequential steering angle. It will influence the solver into keeping sequential steering values closer together. A positive value can be also multiplied to acceleration difference, acceleration or steering angle itself. Another part is that for the state (x, y, psi, v, cte and epsi) it is calculated based on the state of last timestep, but for the actuation parameter there is a 100ms delay. The state of steering angle and acceleration are the state of second last timestep.
+One part is that a positive value can be multiplied to acceleration difference, acceleration or steering angle itself and so on. For example,multiplying a positive value to the square of the difference of two sequential steering angle, will influence the solver into keeping sequential steering values closer together. Another part is that for the state (x, y, psi, v, cte and epsi) it is calculated based on the state of last timestep, but for the actuation parameter there is a 100ms delay. The state of steering angle and acceleration are the state of second last timestep.
 
 ## Dependencies
 
