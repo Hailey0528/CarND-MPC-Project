@@ -1,7 +1,24 @@
 # CarND-Controls-MPC
 Self-Driving Car Engineer Nanodegree Program
 
----
+## The Model
+The predicted state  of this time step is based on the state of last time step as follows:
+
+      x_[t] = x[t-1] + v[t-1] * cos(psi[t-1]) * dt
+      y_[t] = y[t-1] + v[t-1] * sin(psi[t-1]) * dt
+      psi_[t] = psi[t-1] + v[t-1] / Lf * delta[t-1] * dt
+      v_[t] = v[t-1] + a[t-1] * dt
+      cte[t] = f(x[t-1]) - y[t-1] + v[t-1] * sin(epsi[t-1]) * dt
+      epsi[t] = psi[t] - psides[t-1] + v[t-1] * delta[t-1] / Lf * dt
+      
+## Timestep Length and Elapsed Duration (N&dt)
+If the N increases, then the control inputs, which need to be optimizd, will increse proportionally. In each dt time, there should be one time optimization. So it means, for a greater N or dt we need more powerful calculator. I tried to increase one parameter and decrease another one.
+
+## Polynomial Fitting and MPC Preprocessing
+All the waypoints should be transfered into the coordinate of the current point. And then use the function 'polyfit' to get the coefficients of the fitting result.
+
+## Model Predictive Control with Latency
+For example, one part is to multiply a positive value to the square of the difference of two sequential steering angle. It will influence the solver into keeping sequential steering values closer together. A positive value can be also multiplied to acceleration difference, acceleration or steering angle itself. Another part is that for the state (x, y, psi, v, cte and epsi) it is calculated based on the state of last timestep, but for the actuation parameter there is a 100ms delay. The state of steering angle and acceleration are the state of second last timestep.
 
 ## Dependencies
 
